@@ -11,11 +11,13 @@ if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 app.use('/api/v1/tours', tourRouter);
 
 app.all('*', (req, res, next) => {
-  //   const err = new Error(`This path ${req.originalUrl} doesn´t exist`);
+  //   const err = new Error(`This path ${req.originalUrl} doesnÂ´t exist`);
   //   err.status = 'Fail';
   //   err.statusCode = 404;
   next(new AppError(`This path ${req.originalUrl} doesn't exist`));
 });
+
+console.log('Caralho Caralho POrra');
 
 // const ee = 'Teste';
 // const ee = 23;
