@@ -17,7 +17,7 @@ app.all('*', (req, res, next) => {
   next(new AppError(`This path ${req.originalUrl} doesn't exist`));
 });
 
-console.log('Caralho Caralho POrra');
+console.log('Caralho Caralho POrra Lua ');
 
 // const ee = 'Teste';
 // const ee = 23;
