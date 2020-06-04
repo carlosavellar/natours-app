@@ -5,11 +5,11 @@ const AppError = require('./../utils/AppError');
 
 const signToken = (tokenId) => {
   return jwt.sign({ id: tokenId }, process.env.JWT_SECRET, {
-    experesIn: process.env.JWT_EXPIRES_IN,
+    expiresIn: process.env.JWT_EXPIRES_IN,
   });
 };
 
-exports.authentication = catchAsync(async (req, res, next) => {
+exports.signUp = catchAsync(async (req, res, next) => {
   const newUser = await User.create({
     name: req.body.name,
     email: req.body.email,
@@ -29,16 +29,21 @@ exports.authentication = catchAsync(async (req, res, next) => {
 });
 
 exports.login = catchAsync(async (req, res, next) => {
-  const { password, email } = req.body;
-
+  const { email, password } = req.body;
   //   const token = signToken(user.id);
-
-  if (!password || !email) {
-    return next(new AppError('User and email doen´t exist', 400));
+  if (!email || !password) {
+    return next(new AppError('Privide an user and e-mail', 400));
   }
   const user = await User.findOne({ email }).select('+password');
+
+  const correct = await user.correctPassword(password, user.password);
+
+  console.log(correct, '000');
+  console.log(user);
+
   if (!user || !(await user.correctPassword(password, user.password))) {
-    return next(AppError('Naoa chei esse user', 401));
+    return next(new AppError('Incorrect email or password', 401));
   }
-  res.status(200).json({ status: 200, token });
+  const token = signToken(user._id);
+  res.status(200).json({ status: 'Success', token });
 });

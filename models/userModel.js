@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
-const bcryptjs = require('bcryptjs');
-
-const userSchema = mongoose.Schema({
+const bcrypt = require('bcryptjs');
+const CryptoJS = require('crypto-js');
+const userSchema = new mongoose.Schema({
   name: {
     type: String,
     maxlengh: 16,
@@ -13,17 +13,18 @@ const userSchema = mongoose.Schema({
     required: [true, 'Please put an email'],
     unique: true,
     validate: [validator.isEmail, 'Put a real email'],
+    lowercase: true,
   },
   photo: {
     type: String,
   },
   password: {
-    type: Number,
+    type: String,
     required: [true, 'Choose a password'],
     select: false,
   },
   confirmPassword: {
-    type: Number,
+    type: String,
     // required: [true, 'Confirme the password'],
     validate: {
       validator: function (val) {
@@ -34,18 +35,22 @@ const userSchema = mongoose.Schema({
   },
 });
 
-userSchema.pre('save', function (next) {
-  if (this.isModified('password')) return next();
-  this.password = bcryptjs.hash(this.password, 12);
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
+  this.password = await bcrypt.hash(this.password, 12);
+  // this.password = await CryptoJS.AES.encrypt(
+  //   this.password,
+  //   '12 secret key'
+  // ).toString(' ');
   this.confirmPassword = undefined;
   next();
 });
 
 userSchema.methods.correctPassword = async function (
   candidatePassword,
-  password
+  userPassword
 ) {
-  return bcryptjs.compare(candidatePassword, password);
+  return await bcrypt.compare(candidatePassword, userPassword);
 };
 
 const Users = mongoose.model('Users', userSchema);
