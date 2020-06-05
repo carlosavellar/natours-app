@@ -1,6 +1,6 @@
+const jwt = require('jsonwebtoken');
 const User = require('./../models/userModel');
 const { catchAsync } = require('./../utils/catchAsync');
-const jwt = require('jsonwebtoken');
 const AppError = require('./../utils/AppError');
 
 const signToken = (tokenId) => {
@@ -38,12 +38,34 @@ exports.login = catchAsync(async (req, res, next) => {
 
   const correct = await user.correctPassword(password, user.password);
 
-  console.log(correct, '000');
-  console.log(user);
-
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError('Incorrect email or password', 401));
   }
   const token = signToken(user._id);
   res.status(200).json({ status: 'Success', token });
+});
+
+exports.protect = catchAsync(async (req, res, next) => {
+  // 1 check if the token is in the headers
+  let token;
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  ) {
+    console.log('Token exist :alien: ');
+    token = req.headers.authorization.split(' ')[1];
+  } else {
+    console.log('Tem porra nenhuma de token');
+  }
+
+  if (!token) {
+    return next(new AppError('you are not loogged in. Please Log in', 401));
+  }
+  // 2 verify token
+
+  // 3 - check if the users exist
+
+  // 4 - Check if the user changed the password before the token was issused
+
+  next();
 });
