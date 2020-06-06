@@ -33,6 +33,7 @@ const userSchema = new mongoose.Schema({
       value: 'Password doens´t maatch',
     },
   },
+  passwordChangedAt: Date,
 });
 
 userSchema.pre('save', async function (next) {
@@ -57,6 +58,14 @@ userSchema.post(/^find/, function (doc, next) {
   console.log(doc);
   next();
 });
+
+userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
+  if (this.passwordChangedAt) {
+    const changedTimeStamp = parseInt(this.passwordChangedAt.getTime() / 1000);
+    return JWTTimestamp < changedTimeStamp;
+  }
+  return false;
+};
 
 const Users = mongoose.model('Users', userSchema);
 

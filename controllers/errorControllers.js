@@ -20,6 +20,13 @@ const handCastErrorDB = (err) => {
   return new AppError(message, 400);
 };
 
+const handleJsonWebTokenError = () => {
+  return new AppError('You are not loogged in. Please log in', 401);
+};
+
+const handleJsonWebTokenExpiredError = () => {
+  return new AppError('This token is expired! Please log in again.', 401);
+};
 const sendErrorDev = (err, res) => {
   res.status(err.statusCode).json({
     status: err.status,
@@ -56,6 +63,10 @@ module.exports = (err, req, res, next) => {
     if (error.code === 11000) error = handleDuplicateErrDB(error);
     if (err.name === 'ValidationError') error = handleValidationError(error);
     if (error.name === 'CastError') handCastErrorDB(error);
+    if (error.name === 'JsonWebTokenError')
+      error = handleJsonWebTokenError(error);
+    if (error.name === 'TokenExpiredError')
+      error = handleJsonWebTokenExpiredError(error);
     sendErrorProd(error, res);
   }
 };
