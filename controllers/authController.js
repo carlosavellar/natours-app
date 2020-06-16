@@ -44,7 +44,7 @@ exports.login = catchAsync(async (req, res, next) => {
 
   const token = signToken(user._id);
 
-  res.status(200).json({
+  res.status(201).json({
     status: 'Success',
     token,
   });
@@ -64,10 +64,11 @@ exports.protect = catchAsync(async (req, res, next) => {
   if (!token) {
     return next(new AppError('You are not logged in. Please log in!', 401));
   }
+  console.log(token);
 
-  const decoded = await promisify(jwt.verify(token, process.env.JWT_SECRET));
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
 
-  const currentUser = User.findById(decoded.id);
+  const currentUser = await User.findById(decoded.id);
 
   currentUser.changedPassword(decoded.iat);
 
@@ -79,6 +80,5 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   req.user = currentUser;
 
-  console.log(token);
   next();
 });

@@ -43,7 +43,7 @@ userSchema.methods.correctPassword = function (candidatePassword, password) {
 };
 
 userSchema.methods.changedPassword = function (JWTTimestamp) {
-  if (tbis.passwordChangedAt) {
+  if (this.passwordChangedAt) {
     const timeStemp = parseInt(this.passwordChangedAt.getTime() / 100);
     return JWTTimestamp < timeStemp;
   }
