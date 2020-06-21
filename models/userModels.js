@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
+const { connect } = require('http2');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -43,9 +44,7 @@ userSchema.methods.correctPassword = async function (
   condidatePassword,
   password
 ) {
-  if (this.password) {
-    return await bcrypt.compare(condidatePassword, password);
-  }
+  return await bcrypt.compare(condidatePassword, password);
 };
 
 userSchema.methods.createPassowrdReset = function () {
@@ -56,6 +55,15 @@ userSchema.methods.createPassowrdReset = function () {
     .update(reseToken)
     .digest('hex');
   this.passwordResetSpires = Date.now() + 10 * 60 * 1000;
+};
+
+userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
+  if (this.passwordChangedAt) {
+    console.log('changed after');
+    const changedTime = parseInt(this.passwordChangedAt.getTime() / 1000, 10);
+    return JWTTimestamp < changedTime;
+  }
+  return false;
 };
 
 const User = mongoose.model('User', userSchema);
