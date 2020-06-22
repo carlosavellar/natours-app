@@ -54,18 +54,23 @@ exports.login = catchAsync(async (req, res, next) => {
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
-  let token;
+  let token = '';
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith('Bearer')
   ) {
     token = req.headers.authorization.split(' ')[1];
-  } else {
+  }
+
+  if (!token) {
     return next(new AppError('You are not logged in', 401));
   }
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-
-  const currentUser = await User.findById(decoded._id);
+  console.log(req.headers);
+  const currentUser = await User.findById(decoded.id);
+  currentUser
+    ? console.log('Existe---', currentUser)
+    : console.log('nao existe');
 
   if (!currentUser) {
     return next(
