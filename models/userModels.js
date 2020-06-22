@@ -35,23 +35,24 @@ const userSchema = new mongoose.Schema({
   passwordResetSpires: Date,
 });
 
-userSchema.pre('save', async function (next) {
+userSchema.pre(/^save/, async function (next) {
+  if (!this.isModified('password')) return next();
   this.password = await bcrypt.hash(this.password, 12);
   next();
 });
 
 userSchema.methods.correctPassword = async function (
-  condidatePassword,
+  candidatePassword,
   password
 ) {
-  return await bcrypt.compare(condidatePassword, password);
+  console.log(await bcrypt.compare(candidatePassword, password));
+  return bcrypt.compare(candidatePassword, password);
 };
 
 userSchema.methods.createPassowrdReset = function () {
-  const reseToken = crypto.rondomBytes(32).toString('hex');
-
+  const reseToken = crypto.randomBytes(32).toString('hex');
   this.passwordResetToken = crypto
-    .createHash('sha-256')
+    .createHash('sha256')
     .update(reseToken)
     .digest('hex');
   this.passwordResetSpires = Date.now() + 10 * 60 * 1000;
