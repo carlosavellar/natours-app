@@ -3,6 +3,7 @@ const { catchAsync } = require('./../utils/catchAsync');
 const jwt = require('jsonwebtoken');
 const AppError = require('./../utils/AppError');
 const { promisify } = require('util');
+const sendEmail = require('./../utils/email');
 
 const getToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -99,6 +100,31 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   }
 
   const resetToken = user.createPasswordResetToken();
-
   await user.save({ validateBeforeSave: false });
+
+  // send e-mail
+
+  const url = `${req.protocol}://${req.get(
+    'host'
+  )}/api/v1/users/fortpassword/${resetToken}}`;
+
+  const message = `You´ve requested a ppassword reset. \n Please click in yhe link below and choose password and confirm the passowrd \n ${url}`;
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: `Passowrdis valid for 10`,
+      message,
+    });
+    res.status(200).json({
+      status: 'Success',
+      mesage: 'Token sent to email',
+    });
+  } catch (err) {
+    console.log(err);
+
+    user.passwordResetToken = undefined;
+    user.passwordResetSpires = undefined;
+    await user.save({ validateBeforeSave: false });
+    return next(new AppError('Something went wrong', 500));
+  }
 });
