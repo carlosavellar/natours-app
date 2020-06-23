@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema({
   },
   passwordChangedAt: Date,
   passwordResetToken: String,
-  passwordResetSpires: Date,
+  passwordResetExpires: Date,
 });
 
 userSchema.pre(/^save/, async function (next) {
@@ -65,9 +65,9 @@ userSchema.methods.createPasswordResetToken = function () {
     .update(reseToken)
     .digest('hex');
 
-  console.log(reseToken, ' ', this.passwordResetToken);
+  console.log(reseToken, ' _ _ ', this.passwordResetToken);
 
-  this.passwordResetSpires = Date.now() + 10 * 60 * 1000;
+  this.passwordResetExpires = Date.now() + 1000 * 60 * 1000;
 
   return reseToken;
 };
