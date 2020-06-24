@@ -12,26 +12,26 @@ const signToken = (id) => {
   });
 };
 
+const createAndSendToken = (user, statusCode, res) => {
+  const token = signToken(user._id);
+  res.status(statusCode).json({
+    status: 'Success',
+    token,
+    data: {
+      user,
+    },
+  });
+};
+
 exports.signup = catchAsync(async (req, res, next) => {
   const newUser = await User.create({
     name: req.body.name,
     email: req.body.email,
-    photo: req.body.photo,
-    role: req.body.role,
     password: req.body.password,
+    confirmPassword: req.body.confirmPassword,
   });
 
-  console.log(newUser);
-
-  const token = signToken({ id: newUser._id });
-
-  res.status(201).json({
-    status: 'Success Created',
-    token: token,
-    data: {
-      user: newUser,
-    },
-  });
+  createAndSendToken(newUser, 201, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -49,10 +49,7 @@ exports.login = catchAsync(async (req, res, next) => {
 
   const token = signToken(user._id);
 
-  res.status(200).json({
-    status: 'Success logged in',
-    token: token,
-  });
+  createAndSendToken(user, 200, res);
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
@@ -116,10 +113,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
       subject: `Passowrdis valid for 10`,
       message,
     });
-    res.status(200).json({
-      status: 'Success',
-      mesage: 'Token sent to email',
-    });
+    createAndSendToken(user, 200, res);
   } catch (err) {
     user.passwordResetToken = undefined;
     user.passwordResetSpires = undefined;
@@ -151,8 +145,31 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   await user.save();
   const token = signToken(user._id);
 
-  res.status(200).json({
-    status: 'Success',
-    token,
-  });
+  createAndSendToken(user, 200, res);
+});
+
+exports.updatePassword = catchAsync(async (req, res, next) => {
+  // 1) get user from the collection
+  const user = await User.findById(req.user.id).select('+password');
+
+  // 2) check if the password is correct
+
+  if (!(await user.correctPassword(user.confirmPassword, user.password))) {
+    return next(new AppError('Your current password are wrong', 404));
+  }
+
+  // 3) Update the password
+  user.password = req.body.password;
+  user.confirmPassword = req.body.confirmPassword;
+
+  await user.save();
+  // res.status('201').json({
+
+  // 4) Log  the user in, semd JWT
+  // const token = signToken(user._id);
+
+  //   status: 'Password updated',
+  //   token,
+  // });
+  createAndSendToken(user, 201, res);
 });
