@@ -15,11 +15,11 @@ const userSchema = new mongoose.Schema({
     type: String,
   },
   password: {
-    type: Number,
+    type: String,
     required: [true, 'Choose a password'],
   },
   confirmPassword: {
-    type: Number,
+    type: String,
     required: [true, 'Confirm the password'],
     validate: {
       validator: function (val) {
@@ -28,12 +28,26 @@ const userSchema = new mongoose.Schema({
       message: 'The passwords doesn`t match',
     },
   },
+  passwordChangedAt: Date,
 });
 
-userSchema.pre('save', function (next) {
-  this.password = bcrypt.hash(this.password, 12);
+userSchema.methods.changePasswordAfter = function (JWTTimestamp) {
+  if (this.passwordChangedAt) {
+    const changedTimeStamp = parseInt(this.passwordChangedAt.getTime() / 1000);
+    return JWTTimestamp < changedTimeStamp;
+  }
+};
+
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
+  this.password = await bcrypt.hash(this.password, 12);
+  this.confirmPassword = undefined;
   next();
 });
+
+userSchema.methods.correctPassword = function (candidatePassword, password) {
+  return bcrypt.compare(candidatePassword, password);
+};
 
 const User = mongoose.model('User', userSchema);
 
