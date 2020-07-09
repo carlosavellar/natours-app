@@ -4,8 +4,8 @@ const dotenv = require('dotenv');
 dotenv.config({ path: './config.env' });
 
 process.on('uncaughtException', (err) => {
-  console.log(`Uncautch Exception 🎆 \n`);
-  console.log(`Error name: ${err.name}, \n Message: ${err.message}`);
+  console.log(`\nUncautch Exception 🎆`);
+  console.log(`Error name: ${err.name}, \nMessage: ${err.message}`);
   process.exit(1);
 });
 const app = require('./app');
