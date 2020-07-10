@@ -5,7 +5,7 @@ dotenv.config({ path: './config.env' });
 
 process.on('uncaughtException', (err) => {
   console.log(`\nUncautch Exception 🎆`);
-  console.log(`Error name: ${err.name}, \nMessage: ${err.message}`);
+  console.log(`Error name: ${err.name}, \nMessage: ${err.stack}`);
   process.exit(1);
 });
 const app = require('./app');
@@ -27,7 +27,7 @@ const server = app.listen(port, () =>
 
 process.on('unhandledRejection', (err) => {
   console.log(`UHANDLEREJection 🎇`);
-  console.log(`Error name: ${err.name} \nMessage: ${err.message}`);
+  console.log(`Error name: ${err.name} \nMessage: ${err}`);
   server.close(() => {
     process.exit(1);
   });

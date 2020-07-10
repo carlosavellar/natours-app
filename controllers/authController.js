@@ -74,3 +74,25 @@ exports.protect = catchAsync(async (req, res, next) => {
   req.user = freshUser;
   next();
 });
+
+exports.restrictTo = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(user.role)) {
+      return next(new AppError('You are not allowwed to make changes', 401));
+    }
+  };
+};
+
+exports.forgotPassword = catchAsync(async (req, res, next) => {
+  const user = await User.findOne({ email: req.query.email });
+
+  if (!user) {
+    return next(new AppError('There is no user with this email', 404));
+  }
+
+  const resetToken = user.createResetToken();
+
+  await user.save({ validateBeforeSave: false });
+});
+
+exports.resetPassword = catchAsync(async (req, res, next) => {});
