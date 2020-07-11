@@ -1,6 +1,6 @@
 const nodemailer = require('nodemailer');
 
-const semdEmail = async (options) => {
+const sendEmail = async (options) => {
   const transPorter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
     port: process.env.EMAIL_PORT,
@@ -11,7 +11,7 @@ const semdEmail = async (options) => {
   });
 
   const mailOptions = {
-    from: 'Space X',
+    from: 'José Carlos <carlos@grafikwork.com>',
     to: options.email,
     subject: options.subject,
     text: optons.message,
@@ -19,3 +19,5 @@ const semdEmail = async (options) => {
 
   await transPorter.sendMail(mailOptions);
 };
+
+module.exports = sendEmail;

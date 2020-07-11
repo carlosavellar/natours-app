@@ -3,6 +3,7 @@ const AppError = require('./../utils/AppError.js');
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
 const { catchAsync } = require('./../utils/catchAsync');
+const sendEmail = require('./../utils/email');
 
 const sendToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -84,15 +85,61 @@ exports.restrictTo = (...roles) => {
 };
 
 exports.forgotPassword = catchAsync(async (req, res, next) => {
-  const user = await User.findOne({ email: req.query.email });
+  const user = await User.findOne({ email: req.body.email });
 
   if (!user) {
     return next(new AppError('There is no user with this email', 404));
   }
 
-  const resetToken = user.createResetToken();
-
+  const resetToken = user.createPasswordResetToken();
   await user.save({ validateBeforeSave: false });
+
+  const resetURL = `${req.protocol}://${req.get(
+    'host'
+  )}/api/v1/tour/${resetToken}`;
+  const message = `Forgot password? Submit a  Patch requst with your ner password ${resetURL}`;
+  console.log(message);
+
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: 'Your password is valid for 10 minutes',
+      message,
+    });
+    res.status(200).json({
+      status: 'Success',
+      mesage: 'Token sent to email',
+    });
+  } catch (err) {
+    user.passwordResetToken = undefined;
+    user.passwordExpires = undefined;
+    await user.save({ validateBeforeSave: false });
+
+    return next(
+      new AppError(`There is an errror sending the email. Please, try again`),
+      500
+    );
+  }
 });
 
-exports.resetPassword = catchAsync(async (req, res, next) => {});
+exports.resetPassword = catchAsync(async (req, res, next) => {
+  const resetToken = crypto
+    .createHash('sha256')
+    .update(req.params.token)
+    .digest('hex');
+
+  const user = await User.findOne({
+    passwordResetToken: resetToken,
+    passwordExpires: { $gt: Date.now() },
+  });
+
+  if (!user) return next('This token is spired', 400);
+
+  user.password = req.body.password;
+  user.confirmPassword = req.body.confirmPassword;
+  user.passwordResetToken = undefined;
+  user.passwordExpires = undefined;
+  await user.save({ runValidators: false });
+
+  sendToken(user._id);
+});
