@@ -5,9 +5,20 @@ const { promisify } = require('util');
 const { catchAsync } = require('./../utils/catchAsync');
 const sendEmail = require('./../utils/email');
 
-const sendToken = (id) => {
+const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
+  });
+};
+
+const createSendToken = (user, statusCode, res) => {
+  const token = signToken(user._id);
+  res.status(statusCode).json({
+    status: 'Success',
+    token,
+    data: {
+      user,
+    },
   });
 };
 
@@ -18,14 +29,8 @@ exports.signup = catchAsync(async (req, res, next) => {
     password: req.body.password,
     confirmPassword: req.body.confirmPassword,
   });
-  const token = sendToken({ id: newUser._id });
-  res.status(201).json({
-    status: 'Success',
-    data: {
-      user: newUser,
-      token,
-    },
-  });
+
+  createSendToken(newUser, 201, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -38,18 +43,13 @@ exports.login = catchAsync(async (req, res, next) => {
   if (!user || !correct) {
     return next(new AppError(`Password or email are wrong`, 401));
   }
-  const token = sendToken(user._id);
-  res.status(200).json({
-    status: 'Success',
-    token: token,
-    data: {
-      user,
-    },
-  });
+
+  createSendToken(user, 200, res);
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
   let token;
+  console.log(req.headers.authorization.split(' ')[1]);
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith('Bearer')
@@ -62,14 +62,14 @@ exports.protect = catchAsync(async (req, res, next) => {
     );
   }
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+
   const freshUser = await User.findById(decoded.id);
   if (!freshUser) {
     return next(
       new AppError('User belonging to this token doesn`t exist', 404)
     );
   }
-  freshUser.changePasswordAfter(decoded.iat);
-  if (freshUser.changePasswordAfter(freshUser.changePasswordAt)) {
+  if (freshUser.changePasswordAfter(decoded.iat)) {
     return new AppError('User has changed pasword', 401);
   }
   req.user = freshUser;
@@ -78,9 +78,10 @@ exports.protect = catchAsync(async (req, res, next) => {
 
 exports.restrictTo = (...roles) => {
   return (req, res, next) => {
-    if (!roles.includes(user.role)) {
+    if (!roles.includes(req.user.role)) {
       return next(new AppError('You are not allowwed to make changes', 401));
     }
+    next();
   };
 };
 
@@ -141,5 +142,18 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   user.passwordExpires = undefined;
   await user.save({ runValidators: false });
 
-  sendToken(user._id);
+  signToken(user._id);
+});
+
+exports.updatePassword = catchAsync(async (req, res, next) => {
+  const user = await User.findById(req.params.id).select('+password');
+  console.log(user);
+  if (!(await user.correctPassword(req.body.confirmPassword, user.password))) {
+    return next(new AppError('The password doens`t match', 401));
+  }
+  user.password = req.body.password;
+  user.confirmPassword = req.body.confirmPassword;
+  await user.save();
+
+  createSendToken(user, 200, 'Success');
 });

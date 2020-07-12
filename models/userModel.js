@@ -43,9 +43,13 @@ const userSchema = new mongoose.Schema({
 
 userSchema.methods.changePasswordAfter = function (JWTTimestamp) {
   if (this.passwordChangedAt) {
-    const changedTimeStamp = parseInt(this.passwordChangedAt.getTime() / 1000);
+    const changedTimeStamp = parseInt(
+      this.passwordChangedAt.getTime() / 1000,
+      10
+    );
     return JWTTimestamp < changedTimeStamp;
   }
+  return false;
 };
 
 userSchema.pre('save', async function (next) {
