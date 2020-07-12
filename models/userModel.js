@@ -39,6 +39,16 @@ const userSchema = new mongoose.Schema({
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordExpires: Date,
+  active: {
+    type: Boolean,
+    default: false,
+    select: false,
+  },
+});
+
+userSchema.pre(/ˆfind/, function (next) {
+  this.find({ active: { $ne: false } });
+  next();
 });
 
 userSchema.methods.changePasswordAfter = function (JWTTimestamp) {
