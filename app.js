@@ -1,6 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
-<<<<<<< HEAD
+
 const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
 const helmet = require('helmet');
@@ -10,8 +10,6 @@ const AppError = require('./utils/AppError');
 const globalErrorHandler = require('./controllers/errorController');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
-const tourRouter = require('./routes/tourRoutes');
-const AppError = require('./utils/AppError');
 const errorControler = require('./controllers/errorController');
 const app = express();
 

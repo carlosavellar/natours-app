@@ -2,7 +2,7 @@ console.log('Model');
 const mongoose = require('mongoose');
 const slugfy = require('slugify');
 const validator = require('validator');
-const Users = require('./userModel');
+// const User = require('./userModel');
 const tourSchema = new mongoose.Schema(
   {
     name: {
@@ -81,22 +81,39 @@ const tourSchema = new mongoose.Schema(
         day: Number,
       },
     ],
-    guides: Array,
+    guides: [
+      {
+        type: mongoose.Schema.ObjectId,
+        reference: 'User',
+      },
+    ],
   },
-
   {
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   }
 );
 
-tourSchema.pre('save', async function (next) {
-  const guidesTour = this.guides.map(async (id) => await Users.findById(id));
+// tourSchema.pre('save', async function (next) {
+//   const guidesTour = this.guides.map(async (id) => await Users.findById(id));
 
-  this.guides = await Promise.all(guidesTour);
+//   this.guides = await Promise.all(guidesTour);
 
+//   next();
+// });
+
+tourSchema.pre('save', function (next) {
+  this.slug = slugfy(this.name, { lower: true });
   next();
 });
+
+// tourSchema.pre(/ˆfind/, function (next) {
+//   this.populate({
+//     path: 'guides',
+//     select,
+//   });
+//   next();
+// });
 
 tourSchema.pre('aggregate', function (next) {
   this.pipeline().unshift({ $match: { secretTour: { $ne: false } } });
@@ -117,11 +134,6 @@ tourSchema.post('find', function (doc, next) {
 
 tourSchema.virtual('durationWeeks').get(function (next) {
   return this.duration / 7;
-  next();
-});
-
-tourSchema.pre('save', function (next) {
-  this.slug = slugfy(this.name, { lower: true });
   next();
 });
 
