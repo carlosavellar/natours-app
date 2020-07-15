@@ -94,6 +94,14 @@ const tourSchema = new mongoose.Schema(
   }
 );
 
+// tourSchema.pre(/^find/, function (next) {
+//   this.populate({
+//     path: 'guides',
+//     select: '-__v -passwordChangedAt',
+//   });
+//   next();
+// });
+
 // tourSchema.pre('save', async function (next) {
 //   const guidesTour = this.guides.map(async (id) => await Users.findById(id));
 
@@ -107,11 +115,12 @@ tourSchema.pre('save', function (next) {
   next();
 });
 
-// tourSchema.pre(/ˆfind/, function (next) {
+// tourSchema.pre(/^find/, function(next) {
 //   this.populate({
 //     path: 'guides',
-//     select,
+//     select: '-__v -passwordChangedAt'
 //   });
+
 //   next();
 // });
 
@@ -120,7 +129,7 @@ tourSchema.pre('aggregate', function (next) {
   next();
 });
 
-tourSchema.pre('find', function (next) {
+tourSchema.pre(/^find/, function (next) {
   this.find({ sercretTour: { $eq: null } });
   this.start = Date.now();
   console.log(`*Begin: ${this.start}`);
