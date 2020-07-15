@@ -93,9 +93,14 @@ const tourSchema = new mongoose.Schema(
 tourSchema.pre('save', async function (next) {
   const guidesTour = this.guides.map(async (id) => await Users.findById(id));
 
+<<<<<<< HEAD
   this.guides = await Promise.all(guidesTour);
   next();
   console.log('Fixing');
+=======
+  await Promise.all(guidesTour);
+  next();
+>>>>>>> 8b499a1ef5f1a509666770c8ae94701ae057e8c7
 });
 
 tourSchema.pre('aggregate', function (next) {
