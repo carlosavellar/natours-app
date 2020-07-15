@@ -1,6 +1,8 @@
+console.log('Model');
 const mongoose = require('mongoose');
 const slugfy = require('slugify');
 const validator = require('validator');
+const Users = require('./userModel');
 const tourSchema = new mongoose.Schema(
   {
     name: {
@@ -56,12 +58,44 @@ const tourSchema = new mongoose.Schema(
     images: [String],
     startDates: [Date],
     createdAt: Date,
+    startLocation: {
+      type: {
+        type: String,
+        default: 'Point',
+        enum: ['Point'],
+      },
+      coordinates: [Number],
+      address: String,
+      description: String,
+    },
+    locations: [
+      {
+        type: {
+          type: String,
+          default: 'Point',
+          enum: ['Point'],
+        },
+        coordinates: [Number],
+        address: [String],
+        description: String,
+        day: Number,
+      },
+    ],
+    guides: Array,
   },
+
   {
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   }
 );
+
+tourSchema.pre('save', async function (next) {
+  const guidesTour = this.guides.map(async (id) => await Users.findById(id));
+
+  this.guides = await Promise.all(guidesTour);
+  next();
+});
 
 tourSchema.pre('aggregate', function (next) {
   this.pipeline().unshift({ $match: { secretTour: { $ne: false } } });
@@ -77,7 +111,6 @@ tourSchema.pre('find', function (next) {
 
 tourSchema.post('find', function (doc, next) {
   console.log(`**End request: ${Date(Date.now() - this.start)}`);
-
   next();
 });
 
