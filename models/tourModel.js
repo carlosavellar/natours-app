@@ -95,6 +95,7 @@ tourSchema.pre('save', async function (next) {
 
   this.guides = await Promise.all(guidesTour);
   next();
+  console.log('Fixing');
 });
 
 tourSchema.pre('aggregate', function (next) {
