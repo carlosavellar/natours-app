@@ -58,30 +58,30 @@ const tourSchema = new mongoose.Schema(
     images: [String],
     startDates: [Date],
     createdAt: Date,
-    // startLocation: {
-    //   type: {
-    //     type: String,
-    //     default: 'Point',
-    //     enum: ['Point'],
-    //   },
-    //   coordinates: [Number],
-    //   address: String,
-    //   description: String,
-    // },
-    // locations: [
-    //   {
-    //     type: {
-    //       type: String,
-    //       default: 'Point',
-    //       enum: ['Point'],
-    //     },
-    //     coordinates: [Number],
-    //     address: [String],
-    //     description: String,
-    //     day: Number,
-    //   },
-    // ],
-    // guides: Array,
+    startLocation: {
+      type: {
+        type: String,
+        default: 'Point',
+        enum: ['Point'],
+      },
+      coordinates: [Number],
+      address: String,
+      description: String,
+    },
+    locations: [
+      {
+        type: {
+          type: String,
+          default: 'Point',
+          enum: ['Point'],
+        },
+        coordinates: [Number],
+        address: [String],
+        description: String,
+        day: Number,
+      },
+    ],
+    guides: Array,
   },
 
   {
@@ -90,13 +90,13 @@ const tourSchema = new mongoose.Schema(
   }
 );
 
-// tourSchema.pre('save', async function (next) {
-//   const guidesTour = this.guides.map(async (id) => await Users.findById(id));
+tourSchema.pre('save', async function (next) {
+  const guidesTour = this.guides.map(async (id) => await Users.findById(id));
 
-//   this.guides = await Promise.all(guidesTour);
+  this.guides = await Promise.all(guidesTour);
 
-//   next();
-// });
+  next();
+});
 
 tourSchema.pre('aggregate', function (next) {
   this.pipeline().unshift({ $match: { secretTour: { $ne: false } } });
