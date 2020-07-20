@@ -2,7 +2,7 @@ console.log('Model');
 const mongoose = require('mongoose');
 const slugfy = require('slugify');
 const validator = require('validator');
-const Users = require('./userModel');
+const User = require('./userModel');
 const tourSchema = new mongoose.Schema(
   {
     name: {
@@ -77,7 +77,13 @@ const tourSchema = new mongoose.Schema(
         description: String,
       },
     },
-    guides: [String],
+    // guides: [String],
+    guides: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: 'User',
+      },
+    ],
   },
 
   {
@@ -86,9 +92,17 @@ const tourSchema = new mongoose.Schema(
   }
 );
 
-tourSchema.pre(/ˆfind/, async function (next) {
-  const guidesTour = this.guides.forEach(async (id) => await User.find(id));
-  this.guides = await Promise.all(guidesTour);
+// tourSchema.pre(/ˆfind/, async function (next) {
+//   const guidesTour = this.guides.forEach(async (id) => await User.find(id));
+//   this.guides = await Promise.all(guidesTour);
+//   next();
+// });
+
+tourSchema.pre(/ˆfind/, function (next) {
+  this.populate({
+    path: 'guide',
+    select: '-__v -passwordChangedAt',
+  });
   next();
 });
 

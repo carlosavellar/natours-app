@@ -10,6 +10,7 @@ const AppError = require('./utils/AppError');
 const globalErrorHandler = require('./controllers/errorController');
 const userRouter = require('./routes/userRoutes');
 const tourRouter = require('./routes/tourRoutes');
+const reviewRouter = require('./routes/reviewRoutes');
 const errorControler = require('./controllers/errorController');
 const app = express();
 
@@ -42,6 +43,7 @@ app.use(express.json());
 
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/review', reviewRouter);
 app.all('*', (req, res, next) => {
   next(new AppError(`This url doesn't exist ${req.originalUrl}`, 404));
 });
