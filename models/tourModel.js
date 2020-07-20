@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const slugfy = require('slugify');
 const validator = require('validator');
 const User = require('./userModel');
+const Review = require('./../models/reviewsModule');
 const tourSchema = new mongoose.Schema(
   {
     name: {
@@ -97,6 +98,12 @@ const tourSchema = new mongoose.Schema(
 //   this.guides = await Promise.all(guidesTour);
 //   next();
 // });
+
+tourSchema.virtual('reviews', {
+  ref: 'Review',
+  foreignField: 'tour',
+  localField: '_id',
+});
 
 tourSchema.pre(/ˆfind/, function (next) {
   this.populate({
