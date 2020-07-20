@@ -58,6 +58,26 @@ const tourSchema = new mongoose.Schema(
     images: [String],
     startDates: [Date],
     createdAt: Date,
+    // NOW I CAN IMPORT JSON DATA WITH THIS DATASET
+    startLocations: {
+      type: {
+        type: String,
+        default: 'Point',
+        enum: ['Point'],
+      },
+      coordinates: ['Number'],
+      address: String,
+      description: String,
+      locations: {
+        type: String,
+        default: 'Point',
+        enum: ['Point'],
+        coordinates: ['Number'],
+        address: String,
+        description: String,
+      },
+    },
+    guides: [String],
   },
 
   {
@@ -65,6 +85,12 @@ const tourSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   }
 );
+
+tourSchema.pre(/ˆfind/, async function (next) {
+  const guidesTour = this.guides.forEach(async (id) => await User.find(id));
+  this.guides = await Promise.all(guidesTour);
+  next();
+});
 
 tourSchema.pre('aggregate', function (next) {
   this.pipeline().unshift({ $match: { secretTour: { $ne: false } } });
