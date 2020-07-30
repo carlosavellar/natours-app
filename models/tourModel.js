@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const slugfy = require('slugify');
 const validator = require('validator');
 const User = require('./userModel');
-const Review = require('./../models/reviewsModule');
+const Review = require('./../models/reviewsModel');
 const tourSchema = new mongoose.Schema(
   {
     name: {
