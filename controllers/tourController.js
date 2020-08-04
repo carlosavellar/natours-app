@@ -4,6 +4,13 @@ const { catchAsync } = require('./../utils/catchAsync');
 
 const handleFactory = require('./../utils/handleFactory');
 
+exports.to5Tours = (req, res, next) => {
+  req.query.limit = 5;
+  req.query.fields = 'name, price';
+  req.query.sort = 'price';
+  next();
+};
+
 exports.getAlltours = handleFactory.getAll(Tour);
 
 exports.createTour = handleFactory.createOne(Tour);

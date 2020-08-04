@@ -8,6 +8,7 @@ class APIfeatures {
     const strObject = { ...this.queryStr };
     const excludedItens = ['sort', 'limit', 'paginate', 'fields'];
     excludedItens.forEach((el) => delete strObject[el]);
+
     let queryString = JSON.stringify(strObject);
     queryString = queryString.replace(
       /\b(gte|gt|lte|lt)\b/g,
