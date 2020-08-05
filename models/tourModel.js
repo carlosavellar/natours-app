@@ -7,14 +7,14 @@ const tourSchema = new mongoose.Schema(
       type: String,
       unique: true,
       required: [true, 'Choose a name'],
-      validate: [validator.isAlpha, 'Only letters, pelase'],
+      // validate: [validator.isAlpha, 'Only letters, please'],
       maxlength: 19,
       minlength: 5,
     },
     slug: String,
     duration: {
       type: Number,
-      validate: [validator.isNumeric, 'Only numbers, please'],
+      // validate: [validator.isNumeric, 'Only numbers, please'],
     },
     secretTour: {
       type: Boolean,
@@ -44,7 +44,7 @@ const tourSchema = new mongoose.Schema(
     price: {
       type: Number,
       required: [true, 'Choose a price'],
-      validate: [validator.isNumeric, 'Only numbers please'],
+      // validate: [validator.isNumeric, 'Only numbers please'],
     },
     discount: {
       type: Number,
