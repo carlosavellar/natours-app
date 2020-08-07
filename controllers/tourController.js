@@ -10,7 +10,6 @@ exports.getAllTours = catchAsync(async (req, res, next) => {
     .limitFields()
     .sortBy();
   const tours = await apiFeatures.query;
-  console.log(tours);
   res.status(200).json({
     status: 'Success',
     results: tours.length,
