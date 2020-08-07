@@ -1,7 +1,7 @@
 const Tour = require('./../models/tourModel');
-const AppError = require('./../utils/AppError');
 const APIFeatures = require('./../utils/APIfeatures');
-const { catchAsync } = require('./../utils/catchAsync');
+const catchAsync = require('./../utils/catchAsync');
+const AppError = require('./../utils/AppError');
 
 exports.getAllTours = catchAsync(async (req, res, next) => {
   const apiFeatures = new APIFeatures(Tour.find(), req.query)
@@ -30,10 +30,12 @@ exports.createTour = catchAsync(async (req, res, next) => {
 });
 
 exports.getTour = catchAsync(async (req, res, next) => {
+  console.log(req.params.id);
   const tour = await Tour.findById(req.params.id);
-
-  if (!tour) return next(new AppError('Tour not found, error 404', 404));
-
+  if (!tour) {
+    console.log('eeee');
+    return next(new AppError('Tour not found, error 404', 404));
+  }
   res.status(200).json({
     status: 'Success',
     data: {
