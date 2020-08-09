@@ -1,4 +1,9 @@
 const AppError = require('./../utils/appError');
+
+const handleJsonWebTokenError = (err) => {
+  return new AppError(`Invalid token, please signing again`, 401);
+};
+
 const handleCastError = (err) => {
   return new AppError(`This page ${err.value} doesn't Exist`, 404);
 };
@@ -51,6 +56,8 @@ module.exports = (err, req, res, next) => {
     if (err.code === 11000) error = handleDuplicateError(error);
     if (err.name === 'CastError') error = handleCastError(error);
     if (err.name === 'ValidationError') error = handleValidationError(error);
+    if (err.name === 'JsonWebTokenError')
+      error = handleJsonWebTokenError(error);
     sendErrorProduction(error, res);
   }
 };
