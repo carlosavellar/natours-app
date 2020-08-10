@@ -42,7 +42,6 @@ exports.login = catchAsync(async (req, res, next) => {
 
   const user = await User.findOne({ email }).select('password');
 
-  console.log(user);
   if (!user || !(await user.correctPassword(password, user.password))) {
     next(new AppError('Password or email are wrong', 401));
   }
@@ -56,35 +55,34 @@ exports.login = catchAsync(async (req, res, next) => {
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
-  console.log(req.headers);
-
+  // 1) Getting token and check of it's there
   let token;
   if (
-    !req.headers.authorization &&
-    !req.headers.authorization.startsWith('Bearer')
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
   ) {
-    console.log('No token in the room');
-  } else {
     token = req.headers.authorization.split(' ')[1];
+  } else {
+    console.log('Pensamento liberal ');
   }
   if (!token) {
     return next(new AppError('No token in the room', 401));
   }
 
-  const decoded = await promisify(jwt.verify(token, process.env.JWT_SECRET));
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  console.log(`⚾ ${decoded}`);
 
-  const currentUser = await User.findById(decoded._id);
+  console.log('Do funcionário pública');
+  const currentUser = await User.findById(decoded.id);
 
   if (!currentUser) {
     return next(
-      next(AppError('User belonging to this token no longer exist', 401))
+      new AppError('User belonging to this token no longer exist', 401)
     );
   }
 
-  currentUser.changedPassword(docoded.iat);
-
-  if (currentUser.changedPassword(docoded.iat)) {
-    return next(next(AppError('The password has changed before ', 401)));
+  if (currentUser.changedPassword(decoded.iat)) {
+    return next(new AppError('The password has changed before ', 401));
   }
 
   req.user = currentUser;

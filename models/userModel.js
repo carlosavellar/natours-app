@@ -54,8 +54,10 @@ userSchema.methods.correctPassword = async function (
 };
 
 userSchema.methods.changedPassword = function (JWTTimestamp) {
-  const changedTimestamp = parseInt(this.passwordChangedAt).getTime() / 1000;
-  return JWTTimestamp < changedTimestamp;
+  if (this.passwordChangedAt) {
+    const changedTimestamp = parseInt(this.passwordChangedAt.getTime() / 1000);
+    return JWTTimestamp < changedTimestamp;
+  }
 };
 
 const User = mongoose.model('User', userSchema);
