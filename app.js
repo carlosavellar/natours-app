@@ -1,12 +1,11 @@
 const express = require('express');
 const morgan = require('morgan');
 
-const userRouter = require('./routes/userRoutes');
 const AppError = require('./utils/appError');
 const globalErrorController = require('./controllers/errorController');
-const tourRouter = require('./routes/tourRoutes');
-
 const app = express();
+const tourRouter = require('./routes/tourRoutes');
+const userRouter = require('./routes/userRoutes');
 
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
