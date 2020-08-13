@@ -5,7 +5,6 @@ const AppError = require('./../utils/AppError');
 const User = require('./../models/userModel');
 
 exports.getAllTours = catchAsync(async (req, res, next) => {
-  console.table(req.user);
   const apiFeatures = new APIFeatures(Tour.find(), req.query)
     .filtered()
     .paginate()

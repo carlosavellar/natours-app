@@ -12,6 +12,29 @@ const signToken = (id) => {
   });
 };
 
+const createSendToken = (user, statusCode, res) => {
+  const token = signToken(user.id);
+
+  const cooKieOptions = {
+    expires: new Date(
+      Date.now() + process.env.JWT_EXPIRES_IN * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true,
+  };
+
+  if (process.env.NODE_ENV === 'production') cooKieOptions.secure = true;
+
+  user.password = undefined;
+
+  res.cookie('jwt', token, cooKieOptions);
+
+  res.status(statusCode).json({
+    status: 'Success',
+    token,
+    data: { user },
+  });
+};
+
 exports.signUp = catchAsync(async (req, res, next) => {
   const user = await User.create({
     name: req.body.name,
@@ -28,13 +51,15 @@ exports.signUp = catchAsync(async (req, res, next) => {
   if (!token) {
     return next(new AppError('Nenhum token', 401));
   }
-  res.status(201).json({
-    status: '✅ Success',
-    token,
-    data: {
-      user,
-    },
-  });
+
+  createSendToken(user, 201, res);
+  // res.status(201).json({
+  //   status: '✅ Success',
+  //   token,
+  //   data: {
+  //     user,
+  //   },
+  // });
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -49,12 +74,7 @@ exports.login = catchAsync(async (req, res, next) => {
     next(new AppError('Password or email are wrong', 401));
   }
 
-  const token = signToken(user._id);
-
-  res.status(201).json({
-    status: 'Success',
-    token,
-  });
+  createSendToken(user, 201, res);
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
