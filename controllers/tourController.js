@@ -32,7 +32,10 @@ exports.createTour = catchAsync(async (req, res, next) => {
 
 exports.getTour = catchAsync(async (req, res, next) => {
   console.log(req.params.id);
-  const tour = await Tour.findById(req.params.id);
+  const tour = await Tour.findById(req.params.id).populate({
+    path: 'guides',
+    select: '-__v -passwordChgangedAt',
+  });
   if (!tour) {
     console.log('eeee');
     return next(new AppError('Tour not found, error 404', 404));
