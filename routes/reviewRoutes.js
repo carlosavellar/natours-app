@@ -16,4 +16,6 @@ router
     reviewController.createReview
   );
 
+router.route('/:tourId').get(reviewController.getReview);
+
 module.exports = router;
