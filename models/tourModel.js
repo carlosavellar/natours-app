@@ -98,6 +98,8 @@ const tourSchema = new mongoose.Schema(
   }
 );
 
+tourSchema.index({ price: 1 });
+
 tourSchema.pre(/ˆfind/, function (next) {
   this.populate({
     path: 'this',

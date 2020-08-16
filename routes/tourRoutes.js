@@ -6,16 +6,14 @@ const reviewController = require('./../controllers/reviewController');
 const reviewRoutes = require('./reviewRoutes');
 const router = express.Router();
 
+router.use(authController.protect);
+
 router.route('/monthly-plan/:year').get(tourController.getMonthlyPlan);
 router.route('/tour-stats').get(tourController.getStats);
 router
   .route('/')
-  .get(
-    authController.protect,
-    authController.restrictTo('user', 'admin'),
-    tourController.getAllTours
-  )
-  .post(authController.protect, tourController.createTour);
+  .get(authController.restrictTo('user', 'admin'), tourController.getAllTours)
+  .post(tourController.createTour);
 router
   .route('/:id')
   .get(tourController.getTour)

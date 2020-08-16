@@ -2,47 +2,10 @@ const Review = require('./../models/reviewsModel');
 const AppError = require('./../utils/appError');
 const catchAsync = require('./../utils/catchAsync');
 const APIfeatures = require('./../utils/APIfeatures');
+const factory = require('./../utils/factory');
 
-exports.getAllReviews = catchAsync(async (req, res, next) => {
-  const apiFeatures = new APIfeatures(Review.find(), req.params.id)
-    .filtered()
-    .sortBy()
-    .limitFields()
-    .paginate();
+exports.getAllReviews = factory.getAll(Review);
 
-  const reviews = await apiFeatures.query;
+exports.createReview = factory.createOne(Review);
 
-  res.status(200).json({
-    status: 'Success',
-    data: {
-      reviews,
-    },
-  });
-});
-
-exports.createReview = catchAsync(async (req, res, next) => {
-  if (!req.body.tour) req.body.tour = req.params.tourId;
-  if (!req.body.user) req.body.user = req.params.id;
-  if (req.body.user) new AppError('Users is missing', 401);
-  const review = await Review.create(req.body);
-  res.status(201).json({
-    status: 'Success',
-    data: {
-      review,
-    },
-  });
-});
-
-exports.getReview = catchAsync(async (req, res, next) => {
-  let filter = {};
-  if (req.params.tourId) {
-    filter = { tour: req.params.tourId };
-  }
-  const review = await Review.find(filter);
-  res.status(200).json({
-    status: 'Success',
-    data: {
-      review,
-    },
-  });
-});
+exports.getReview = factory.getOne(Review);

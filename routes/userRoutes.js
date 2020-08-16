@@ -17,12 +17,16 @@ router.patch(
   authController.updatePassword
 );
 
+router.use(authController.protect);
+
 router
   .route('/')
+  .get(authController.restrictTo('users'), userController.getAllUsers);
+router
+  .route('/me')
   .get(
-    authController.protect,
-    authController.restrictTo('users'),
-    userController.getAllUsers
+    authController.restrictTo('users', 'lead-guide', 'admin'),
+    userController.getMe
   );
 
 module.exports = router;
