@@ -17,5 +17,7 @@ router
   );
 
 router.route('/:tourId').get(reviewController.getReview);
+router.route('/:tourId/reviews').get(reviewController.getAllReviews);
+// .patch(reviewController.updateOne);
 
 module.exports = router;

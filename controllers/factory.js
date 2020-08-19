@@ -1,6 +1,6 @@
-const AppError = require('./appError');
-const catchAsync = require('./catchAsync');
-const APIFeatures = require('./APIfeatures');
+const AppError = require('./../utils/appError');
+const catchAsync = require('./../utils/catchAsync');
+const APIFeatures = require('./../utils/APIfeatures');
 
 exports.getAll = (Model) =>
   catchAsync(async (req, res, next) => {
@@ -14,12 +14,12 @@ exports.getAll = (Model) =>
       .limitFields()
       .sortBy();
 
-    const doc = await apiFeatures.query.explain();
+    const doc = await apiFeatures.query;
     res.status(200).json({
       status: 'Success',
       results: doc.length,
       data: {
-        doc,
+        data: doc,
       },
     });
   });

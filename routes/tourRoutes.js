@@ -22,11 +22,15 @@ router
 
 router.use('/:tourId/reviews', reviewRoutes);
 
-// router
+router
+  .route('/tours-within/:distance/center/:latlng/unit/:unit')
+  .get(tourController.getToursWithin); // router
 //   .route('/:tourId/reviews')
 //   .post(
 //     authController.protect,
 //     authController.restrictTo('user', 'lead-guide', 'admin'),
 //     reviewController.getAllReviews
 //   );
+
+route.route('/distance/:latlng/unit/:unit').get(tourController.getDistances);
 module.exports = router;

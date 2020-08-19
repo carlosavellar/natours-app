@@ -99,6 +99,7 @@ const tourSchema = new mongoose.Schema(
 );
 
 tourSchema.index({ price: 1 });
+tourSchema.index({ startLocation: '2dsphere' });
 
 tourSchema.pre(/ˆfind/, function (next) {
   this.populate({
