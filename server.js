@@ -32,3 +32,7 @@ process.on('unhandledRejection', (err) => {
     process.exit(1);
   });
 });
+
+process.on('uncaughtExceptionMonitor', (err, origin) => {
+  MyMonitoringTool.logSync(err, origin);
+});

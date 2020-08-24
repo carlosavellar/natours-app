@@ -44,7 +44,6 @@ const tourSchema = new mongoose.Schema(
     price: {
       type: Number,
       required: [true, 'Choose a price'],
-      validate: [validator.isNumeric, 'Only numbers please'],
     },
     discount: {
       type: Number,
