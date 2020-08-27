@@ -1,5 +1,10 @@
 const AppError = require('./../utils/appError');
 
+const handleTokenError = (err) => {
+  console.log(new Date(err.expiredAt).getHours());
+  return new AppError('Your session spired. Please log in again', 401);
+};
+
 const handlerValidationError = (err) => {
   const errors = Object.values(err.errors).map((el) => el.message);
   const message = `ERRORS: ${errors}.join('. ')`;
@@ -51,6 +56,7 @@ module.exports = (err, req, res, next) => {
     if (err.code === 11000) error = handlerDuplicateError(error);
     if (err.name === 'CastError') error = handlerCastError(error);
     if (err.name === 'ValidationError') error = handlerValidationError(error);
+    if (err.name === 'TokenExpiredError') error = handleTokenError(error);
     sendProductionError(error, res);
   }
 };

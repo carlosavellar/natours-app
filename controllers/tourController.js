@@ -2,7 +2,7 @@ const Tour = require('./../models/tourModel');
 const APIFeatrures = require('./../utils/APIfeatures');
 const { catchAsync } = require('./../utils/catchAsync');
 
-exports.getAlltours = catchAsync(async (req, res, next) => {
+exports.getAllTours = catchAsync(async (req, res, next) => {
   const apiFeatures = new APIFeatrures(Tour.find(), req.query);
   const tours = await apiFeatures.query;
   res.status(200).json({
@@ -26,7 +26,6 @@ exports.createTour = catchAsync(async (req, res, next) => {
 
 exports.getTour = catchAsync(async (req, res, next) => {
   const tour = await Tour.findById(req.params.id);
-
   res.status(200).json({
     status: 'Success',
     data: {
