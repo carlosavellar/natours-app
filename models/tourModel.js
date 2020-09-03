@@ -1,20 +1,22 @@
 const mongoose = require('mongoose');
-const slugfy = require('slugify');
+const slugify = require('slugify');
 const validator = require('validator');
+
+const User = require('./../models/userModels');
+
 const tourSchema = new mongoose.Schema(
   {
     name: {
       type: String,
       unique: true,
       required: [true, 'Choose a name'],
-      validate: [validator.isAlpha, 'Only letters, pelase'],
+      validate: [validator.isAlpha, 'Only letters, please'],
       maxlength: 19,
       minlength: 5,
     },
     slug: String,
     duration: {
       type: Number,
-      validate: [validator.isNumeric, 'Only numbers, please'],
     },
     secretTour: {
       type: Boolean,
@@ -31,6 +33,7 @@ const tourSchema = new mongoose.Schema(
       },
       required: [true, 'Choose one level of difficulty'],
     },
+    guides: [{ type: mongoose.Schema.ObjectId, ref: 'User' }],
     ratingsAverage: {
       type: Number,
       min: 2,
@@ -60,12 +63,49 @@ const tourSchema = new mongoose.Schema(
     images: [String],
     startDates: [Date],
     createdAt: Date,
+    startLocation: {
+      type: {
+        type: String,
+        default: 'Point',
+        enum: ['Point'],
+        coordinates: Number,
+        locations: {
+          type: String,
+          default: 'Point',
+          enum: ['Point'],
+          coordinates: Number,
+          address: String,
+          description: String,
+          day: Date,
+        },
+      },
+    },
   },
   {
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   }
 );
+
+// tourSchema.pre('find', function (next) {
+//   console.log('eeeeee');
+//   this.populate({
+//     path: 'guides',
+//     select: '-__v -passwordChangedAt',
+//   });
+//   next();
+// });
+
+// tourSchema.pre('save', async function (next) {
+//   console.log(this.guides);
+//   const promiseGuides = await this.guides.map(
+//     async (id) => await User.findById(id)
+//   );
+//   this.guides = await Promise.all(promiseGuides);
+//   next();
+// });
+tourSchema.index({ price: 1 });
+tourSchema.index({ startLocation: '2dsphere' });
 
 tourSchema.pre('aggregate', function (next) {
   this.pipeline().unshift({ $match: { secretTour: { $ne: false } } });
@@ -91,7 +131,7 @@ tourSchema.virtual('durationWeeks').get(function (next) {
 });
 
 tourSchema.pre('save', function (next) {
-  this.slug = slugfy(this.name, { lower: true });
+  this.slug = slugify(this.name, { lower: true });
   next();
 });
 

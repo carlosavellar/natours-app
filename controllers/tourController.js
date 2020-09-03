@@ -1,56 +1,37 @@
 const Tour = require('./../models/tourModel');
-const APIFeatrures = require('./../utils/APIfeatures');
 const { catchAsync } = require('./../utils/catchAsync');
+const AppError = require('./../utils/appError');
+const handleFactory = require('./handleFactory');
 
-exports.getAllTours = catchAsync(async (req, res, next) => {
-  const apiFeatures = new APIFeatrures(Tour.find(), req.query);
-  const tours = await apiFeatures.query;
+exports.getAllTours = handleFactory.getAll(Tour);
+
+exports.createTour = handleFactory.createOne(Tour);
+
+exports.getTour = handleFactory.getOne(Tour);
+
+exports.updateTour = handleFactory.updateOne(Tour);
+
+exports.deleteTour = handleFactory.deleteOne(Tour);
+
+exports.tourWithin = catchAsync(async (req, res, next) => {
+  const { distance, latlng, unit } = req.params;
+  const [lng, lat] = latlng.split(',');
+  const radius = unit === 'mi' ? distance / 3963.2 : distance / 6378.1;
+  if (!lat || !lng) {
+    next(new AppError('No parameters', 400));
+  }
+  const tours = await Tour.find({
+    startLocation: {
+      $geoWithin: {
+        $centerSphere: [[lng, lat], radius],
+      },
+    },
+  });
   res.status(200).json({
     status: 'Success',
     results: tours.length,
     data: {
       tours,
-    },
-  });
-});
-
-exports.createTour = catchAsync(async (req, res, next) => {
-  const newTour = await Tour.create(req.body);
-  res.status(201).json({
-    status: 'Success',
-    data: {
-      tour: newTour,
-    },
-  });
-});
-
-exports.getTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findById(req.params.id);
-  res.status(200).json({
-    status: 'Success',
-    data: {
-      tour,
-    },
-  });
-});
-
-exports.updateTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findByIdAndUpdate(req.params.id, req.body);
-  res.status(201).json({
-    status: 'Success',
-    data: {
-      tour,
-    },
-  });
-});
-
-exports.deleteTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findByIdAndDelete(req.params.id);
-  if (!tour) return next(new AppError('Tour not found, error 404', 404));
-  res.status(204).json({
-    status: 'Success',
-    data: {
-      tour,
     },
   });
 });

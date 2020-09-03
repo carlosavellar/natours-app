@@ -1,4 +1,4 @@
-class APIfeatures {
+class APIFeatures {
   constructor(query, queryStr) {
     this.query = query;
     this.queryStr = queryStr;
@@ -6,13 +6,14 @@ class APIfeatures {
 
   filtered() {
     const strObject = { ...this.queryStr };
-    const excludedItens = ['sort', 'limit', 'paginate', 'fields'];
-    excludedItens.forEach((el) => delete strObject[el]);
+    const excludedItems = ['sort', 'limit', 'paginate', 'fields'];
+    excludedItems.forEach((el) => delete strObject[el]);
     let queryString = JSON.stringify(strObject);
     queryString = queryString.replace(
       /\b(gte|gt|lte|lt)\b/g,
       (match) => `$${match}`
     );
+    console.log(queryString, '*****🐱');
 
     this.query = this.query.find(JSON.parse(queryString));
     return this;
@@ -47,4 +48,4 @@ class APIfeatures {
   }
 }
 
-module.exports = APIfeatures;
+module.exports = APIFeatures;
