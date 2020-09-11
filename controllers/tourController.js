@@ -1,18 +1,13 @@
 const Tour = require('./../models/tourModel');
-const { catchAsync } = require('./../utils/catchAsync');
+const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
 const handleFactory = require('./handleFactory');
 
 exports.getAllTours = handleFactory.getAll(Tour);
-
 exports.createTour = handleFactory.createOne(Tour);
-
-exports.getTour = handleFactory.getOne(Tour);
-
+exports.getTour = handleFactory.getOne(Tour, { path: 'reviews' });
 exports.updateTour = handleFactory.updateOne(Tour);
-
 exports.deleteTour = handleFactory.deleteOne(Tour);
-
 exports.tourWithin = catchAsync(async (req, res, next) => {
   const { distance, latlng, unit } = req.params;
   const [lng, lat] = latlng.split(',');
