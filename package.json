@@ -4,6 +4,7 @@
   "description": "App for add tours",
   "main": "index.js",
   "scripts": {
+    "short": "export PS1='~/${PWD/*//} '",
     "start": "nodemon server.js",
     "start:prod": "NODE_ENV=production nodemon server.js",
     "debug": "ndb server.js"
@@ -20,6 +21,7 @@
   "homepage": "https://github.com/carlosavellar/natours-app#readme",
   "dependencies": {
     "apply-loader": "^2.0.0",
+    "axios": "^0.20.0",
     "bcrypt": "^5.0.0",
     "bcryptjs": "^2.4.3",
     "dotenv": "^8.2.0",
@@ -40,6 +42,7 @@
     "xss-clean": "^0.1.1"
   },
   "devDependencies": {
+    "babel-cli": "^6.26.0",
     "eslint-config-airbnb": "^18.1.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-import": "^2.20.2",

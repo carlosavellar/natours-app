@@ -173,6 +173,8 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 
   const token = signInToken({ id: user._id });
 
+  console.log('resetToken');
+
   res.status(200).json({
     status: 'Success',
     token,
@@ -181,17 +183,17 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
   const user = await User.findById(req.user.id).select('+password');
-
+  console.log(req.user.id + "****** ID");
   if (!(await user.correctPassword(req.body.currentPassword, user.password))) {
     return next(new AppError('The actual password is wrong', 401));
   }
-  console.log('____');
   user.password = req.body.password;
-  console.log('3333');
   user.passwordConfirm = req.body.passwordConfirm;
-  console.log('4444');
-  await user.save();
-  console.log('5555');
+  try{
+      await user.save();
 
-  createSendToken(user, 201, res);
+  }catch(err){
+      console.log(err);
+  }
+  createSendToken(user, 200, res);
 });

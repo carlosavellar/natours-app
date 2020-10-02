@@ -3,13 +3,17 @@ html(lang='en')
   head
     block head
       meta(charset='UTF-8')
-      meta(name='viewport', content='width=device-width, initial-scale=1.0')
+      meta(name='viewport' content='width=device-width, initial-scale=1.0')
+      meta(http-equiv="Content-Security-Policy" content="default-src 'self'; img-src *; child-src 'none'; script-src-attr *; script-src-elem *; style-src-elem *; font-src *; script-src *;")
       link(href='https://fonts.googleapis.com/css?family=Lato:300,300i,700', rel='stylesheet')
       link(rel='stylesheet', href='/css/style.css')
-      link(rel='shortcut icon', type='image/png', href='/img/favicon.png')
+      link(rel='shortcut icon', type='image/png', href='/favicon.ico')
       title Natours | Exciting tours for adventurous people
-  body
+  body 
     include _header
     block content
       h1 Place holder
     include _footer
+    script(src="/js/login.js")
+    div#jsNode Pode
+    script(src='/lib/axios.min.js')

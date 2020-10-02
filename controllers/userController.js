@@ -40,7 +40,7 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
 });
 
 exports.updateMe = catchAsync(async (req, res, next) => {
-  if (req.body.password || req.body.passwordConfirm) {
+  if (!req.body.password || !req.body.passwordConfirm) {
     return next(
       new AppError(
         'This rout is not fr password update. Please use update /updatePassword',
@@ -49,7 +49,7 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     );
   }
   const filteredBody = filteredObj((req.body, 'name', 'email'));
-  console.log(req.user.id);
+  console.log('wwww');
   const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
     new: true,
     runValidators: true,
