@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "short": "export PS1='~/${PWD/*//} '",
-    "start": "nodemon server.js",
+    "start": "nodemon server.js --open",
     "start:prod": "NODE_ENV=production nodemon server.js",
     "debug": "ndb server.js"
   },
