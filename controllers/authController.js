@@ -56,13 +56,10 @@ exports.signUp = catchAsync(async (req, res, next) => {
 
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
-
   if (!email && !password) {
     return next(new AppError('Password or email are missing', 401));
   }
-
   const user = await User.findOne({ email }).select('+password');
-
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError('Email or password are wrong', 401));
   }
@@ -81,7 +78,11 @@ exports.protect = catchAsync(async (req, res, next) => {
     req.headers.authorization.startsWith('Bearer')
   ) {
     token = req.headers.authorization.split(' ')[1];
+  } else if (req) {
+    token = req.cookies.jwt;
   }
+
+  console.log(req.cookies, '22');
 
   if (!token) {
     return next(new AppError('You are not logged in ', 401));
@@ -183,17 +184,16 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
   const user = await User.findById(req.user.id).select('+password');
-  console.log(req.user.id + "****** ID");
+  console.log(req.user.id + '****** ID');
   if (!(await user.correctPassword(req.body.currentPassword, user.password))) {
     return next(new AppError('The actual password is wrong', 401));
   }
   user.password = req.body.password;
   user.passwordConfirm = req.body.passwordConfirm;
-  try{
-      await user.save();
-
-  }catch(err){
-      console.log(err);
+  try {
+    await user.save();
+  } catch (err) {
+    console.log(err);
   }
   createSendToken(user, 200, res);
 });

@@ -10,9 +10,9 @@ const login = async (email, password) => {
         password,
       },
     });
-    console.log(res.data);
+    console.log(res.request.data);
   } catch (err) {
-    console.log(err, 'Introversão');
+    console.log(err.response.data, 'Extroversão');
   }
 };
 
