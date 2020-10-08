@@ -1,9 +1,9 @@
 const path = require('path');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-var livereload = require('livereload');
-var serverReload = livereload.createServer();
-serverReload.watch(__dirname + '/public');
+// var livereload = require('livereload');
+// var serverReload = livereload.createServer();
+// serverReload.watch(__dirname + '/public');
 // const webpack = require('webpack');
 // const HtmlWebpackPugPlugin = require('html-webpack-pug-plugin');
 // const HtmlWebpackPlugin = require('html-webpack-plugin');

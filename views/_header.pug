@@ -6,7 +6,7 @@ header.header
   nav.nav.nav--user
     if user
       a.nav__el.nav__el--logout Log out
-        img.nav__user-img(src=`/img/users/{user.photo}` alt=`Photo of `)
+        img.nav__user-img(src=`/img/users/${user.photo}` alt=`Photo of ${user.name}`)
     else
       a.nav__el(href='/login') Log in
       a.nav__el.nav__el--cta(href='#') Sign up

@@ -21,11 +21,11 @@ const createSendToken = (user, statusCode, res) => {
     expires: new Date(
       Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
     ),
-    httpOnly: true,
+    httpOnly: false,
   };
-
-  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+  // if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
   user.password = undefined;
+  // res.cookies.jwt =
   res.cookie('jwt', token, cookieOptions);
 
   res.status(statusCode).json({
@@ -63,12 +63,13 @@ exports.login = catchAsync(async (req, res, next) => {
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError('Email or password are wrong', 401));
   }
-  const token = signInToken(user._id);
-  res.status(200).json({
-    status: 'Success',
-    user,
-    token,
-  });
+  // const token = signInToken(user._id);
+  // res.status(200).json({
+  //   status: 'Success',
+  //   user,
+  //   token,
+  // });
+  createSendToken(user, 200, res);
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
@@ -197,3 +198,30 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   }
   createSendToken(user, 200, res);
 });
+
+exports.isLoggedIn = async (req, res, next) => {
+  if (req.cookies.jwt) {
+    try {
+      if (!token) {
+        return next(new AppError('You are not logged in ', 401));
+      }
+
+      const decoded = await promisify(jwt.verify)(
+        req.cookies.jwt,
+        process.env.JWT_SECRET
+      );
+
+      const currentUser = await User.findById(decoded.id);
+
+      if (currentUser.passwordChangedAfter(decoded.iat)) {
+        return next();
+      }
+      req.locals.user = currentUser;
+      console.log(req.locals.user);
+      return next();
+    } catch (err) {
+      return next();
+    }
+  }
+  next();
+};

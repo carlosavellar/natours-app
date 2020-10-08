@@ -25,8 +25,9 @@ exports.getTour = catchAsync(async (req, res, next) => {
 });
 
 exports.getLoginForm = (req, res) => {
-  const { email, password } = req.body;
-  console.log(email, password);
+  // const { email, password } = req.body;
+  // console.log(email, password);
+  console.log(req.headers['user-agent']);
   res.status(200).render('login', {
     title: 'Login Into your account',
   });

@@ -10,12 +10,11 @@ const login = async (email, password) => {
         password,
       },
     });
-    console.log(res.request.data);
+    console.log(res);
   } catch (err) {
     console.log(err.response.data, 'Extroversão');
   }
 };
-
 document.querySelector('.form').addEventListener('submit', (e) => {
   e.preventDefault();
   const email = document.getElementById('email').value;
